@@ -4,6 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThreatLens AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        theme: {
+          extend: {
+            fontFamily: {
+              display: ["Space Grotesk", "ui-sans-serif", "system-ui"],
+              body: ["Space Grotesk", "ui-sans-serif", "system-ui"]
+            }
+          }
+        }
+      };
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
     <script>
@@ -15,45 +31,102 @@
     })();
     </script>
 </head>
-<body class="app-bg">
+<body class="app-bg min-h-screen antialiased font-body text-[color:var(--ink)]">
 
-<div class="container">
-    <header class="topbar">
-        <div class="site-mark">
-            <img class="logo" src="{{ url_for('static', filename='logo.svg') }}" alt="ThreatLens AI">
-            <div>
-                <p class="subtitle">Scan URLs, understand risk, and stay safer online.</p>
-                <div class="byline">Built by <strong>Aniket Baniyari</strong>, <strong>Yuraj</strong>, <strong>Mehak Sharma</strong></div>
+<div class="mx-auto w-[min(1100px,92%)] py-10">
+    <header class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-start gap-4">
+            <img class="w-[172px] h-auto" src="{{ url_for('static', filename='logo.svg') }}" alt="ThreatLens AI">
+            <div class="pt-1">
+                <p class="text-base md:text-lg text-[color:var(--muted)] max-w-[68ch]">
+                    Scan URLs, understand risk, and stay safer online.
+                </p>
+                <div class="mt-2 text-sm font-extrabold tracking-wide text-[color:var(--ink)]/80">
+                    Built by <span class="text-[color:var(--ink)]">Aniket Baniyari</span>, <span class="text-[color:var(--ink)]">Yuraj</span>, <span class="text-[color:var(--ink)]">Mehak Sharma</span>
+                </div>
             </div>
         </div>
-        <div class="top-actions">
-            <button type="button" id="themeToggle" class="btn btn-ghost">Theme</button>
-            <a class="btn btn-outline" href="/about">About</a>
-            <a class="btn btn-outline" href="/contact">Contact</a>
-            <a class="btn" href="/auth/login">Login</a>
-            <a class="btn btn-outline" href="/auth/register">Register</a>
-        </div>
+
+        <nav class="flex flex-wrap items-center gap-2">
+            <button type="button" id="themeToggle"
+                    class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/60 backdrop-blur hover:bg-white/80 transition">
+                Theme
+            </button>
+            <a class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/40 backdrop-blur hover:bg-white/70 transition"
+               href="/about">About</a>
+            <a class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/40 backdrop-blur hover:bg-white/70 transition"
+               href="/contact">Contact</a>
+            <a class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-extrabold text-white bg-[color:var(--primary)] hover:bg-[color:var(--primary-dark)] shadow-[0_14px_28px_rgba(11,122,106,0.22)] transition"
+               href="/auth/login">Login</a>
+            <a class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-extrabold border border-[color:var(--primary)] text-[color:var(--primary)] hover:bg-emerald-50/60 transition"
+               href="/auth/register">Register</a>
+        </nav>
     </header>
 
-    <section class="card">
-        <h2>What You Get</h2>
-        <div class="scan-details">
-            <div><strong>Risk Score</strong>: 0 to 100</div>
-            <div><strong>Result</strong>: Safe / Suspicious / Dangerous</div>
-            <div><strong>IP + Location</strong>: domain resolution + geo lookup</div>
-            <div><strong>AI Voice</strong>: readout of scan summary</div>
-            <div><strong>Charts</strong>: scans/day and average risk trend</div>
-            <div><strong>Export</strong>: CSV download for history</div>
+    <section class="mt-7 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur p-6 shadow-[var(--shadow)]">
+            <div class="flex items-center justify-between gap-4">
+                <h2 class="font-display text-xl md:text-2xl font-extrabold">What You Get</h2>
+                <span class="text-xs font-extrabold tracking-wider text-[color:var(--muted)] bg-white/60 border border-[color:var(--line)] rounded-full px-3 py-1">
+                    URL Safety Toolkit
+                </span>
+            </div>
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3">
+                    <div class="font-extrabold">Risk Score</div>
+                    <div class="text-[color:var(--muted)]">0 to 100 with reasons</div>
+                </div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3">
+                    <div class="font-extrabold">Result</div>
+                    <div class="text-[color:var(--muted)]">Safe, Suspicious, Dangerous</div>
+                </div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3">
+                    <div class="font-extrabold">IP + Location</div>
+                    <div class="text-[color:var(--muted)]">Resolve + geo insight</div>
+                </div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3">
+                    <div class="font-extrabold">AI Voice</div>
+                    <div class="text-[color:var(--muted)]">Readout of summary</div>
+                </div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3">
+                    <div class="font-extrabold">Charts</div>
+                    <div class="text-[color:var(--muted)]">Trends over time</div>
+                </div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3">
+                    <div class="font-extrabold">Export</div>
+                    <div class="text-[color:var(--muted)]">Download CSV history</div>
+                </div>
+            </div>
         </div>
-    </section>
 
-    <section class="card">
-        <h2>Quick Start</h2>
-        <ol class="tip-list">
-            <li>Create an account or use Google login.</li>
-            <li>Go to the dashboard and scan a URL.</li>
-            <li>Review the Security Tips panel before opening suspicious links.</li>
-        </ol>
+        <div class="rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur p-6 shadow-[var(--shadow)]">
+            <h2 class="font-display text-xl md:text-2xl font-extrabold">Quick Start</h2>
+            <ol class="mt-4 space-y-3 text-sm">
+                <li class="flex gap-3">
+                    <span class="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-emerald-100 text-emerald-900 font-extrabold">1</span>
+                    <span class="text-[color:var(--ink)]">Create an account or use Google login.</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-amber-100 text-amber-900 font-extrabold">2</span>
+                    <span class="text-[color:var(--ink)]">Open the dashboard and scan any URL.</span>
+                </li>
+                <li class="flex gap-3">
+                    <span class="mt-0.5 inline-flex h-7 w-7 items-center justify-center rounded-full bg-sky-100 text-sky-900 font-extrabold">3</span>
+                    <span class="text-[color:var(--ink)]">Use Security Tips before opening suspicious links.</span>
+                </li>
+            </ol>
+
+            <div class="mt-6 flex flex-wrap gap-2">
+                <a href="/auth/login"
+                   class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-extrabold text-white bg-[color:var(--primary)] hover:bg-[color:var(--primary-dark)] transition">
+                    Go to Login
+                </a>
+                <a href="/auth/register"
+                   class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-extrabold border border-[color:var(--line)] bg-white/60 hover:bg-white/85 transition">
+                    Create Account
+                </a>
+            </div>
+        </div>
     </section>
 </div>
 

@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Contact - ThreatLens AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { theme: { extend: { fontFamily: { body: ["Space Grotesk","ui-sans-serif","system-ui"] } } } };
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
     <script>
@@ -15,45 +22,65 @@
     })();
     </script>
 </head>
-<body class="app-bg">
+<body class="app-bg min-h-screen antialiased font-body text-[color:var(--ink)]">
 
-<div class="container">
-    <header class="topbar">
-        <div class="site-mark">
-            <img class="logo" src="{{ url_for('static', filename='logo.svg') }}" alt="ThreatLens AI">
-            <div>
-                <h1>Contact</h1>
-                <p class="subtitle">Questions, feedback, or bug reports.</p>
-                <div class="byline">Built by <strong>Aniket Baniyari</strong>, <strong>Yuraj</strong>, <strong>Mehak Sharma</strong></div>
+<div class="mx-auto w-[min(1100px,92%)] py-10">
+    <header class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-start gap-4">
+            <img class="w-[172px] h-auto" src="{{ url_for('static', filename='logo.svg') }}" alt="ThreatLens AI">
+            <div class="pt-1">
+                <h1 class="text-3xl font-extrabold">Contact</h1>
+                <p class="mt-2 text-sm md:text-base text-[color:var(--muted)] max-w-[68ch]">
+                    Questions, feedback, or bug reports.
+                </p>
+                <div class="mt-2 text-sm font-extrabold tracking-wide text-[color:var(--ink)]/80">
+                    Built by <span class="text-[color:var(--ink)]">Aniket Baniyari</span>, <span class="text-[color:var(--ink)]">Yuraj</span>, <span class="text-[color:var(--ink)]">Mehak Sharma</span>
+                </div>
             </div>
         </div>
-        <div class="top-actions">
-            <button type="button" id="themeToggle" class="btn btn-ghost">Theme</button>
-            <a class="btn btn-outline" href="/">Home</a>
-            <a class="btn btn-outline" href="/about">About</a>
-            <a class="btn" href="/auth/login">Login</a>
-        </div>
+        <nav class="flex flex-wrap items-center gap-2">
+            <button type="button" id="themeToggle"
+                    class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/60 hover:bg-white/85 transition">
+                Theme
+            </button>
+            <a class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/40 hover:bg-white/70 transition"
+               href="/">Home</a>
+            <a class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/40 hover:bg-white/70 transition"
+               href="/about">About</a>
+            <a class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-extrabold text-white bg-[color:var(--primary)] hover:bg-[color:var(--primary-dark)] transition"
+               href="/auth/login">Login</a>
+        </nav>
     </header>
 
-    <section class="card">
-        <h2>How To Reach Us</h2>
-        <ul class="tip-list">
-            <li>Email: <strong>aniletbaniyari@gmail.com</strong></li>
-            <li>Email: <strong>yuraj@gmail.com</strong></li>
-            <li>Email: <strong>mehaksharma@gmail.com</strong></li>
-            <li>For urgent security issues, include the scanned URL and screenshot.</li>
-        </ul>
-    </section>
+    <section class="mt-7 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <div class="rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur p-6 shadow-[var(--shadow)]">
+            <h2 class="text-xl font-extrabold">How To Reach Us</h2>
+            <ul class="mt-4 space-y-3 text-sm">
+                <li class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3">
+                    Email: <span class="font-extrabold">aniletbaniyari@gmail.com</span>
+                </li>
+                <li class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3">
+                    Email: <span class="font-extrabold">yuraj@gmail.com</span>
+                </li>
+                <li class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3">
+                    Email: <span class="font-extrabold">mehaksharma@gmail.com</span>
+                </li>
+                <li class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3 text-[color:var(--muted)]">
+                    For urgent security issues, include the scanned URL and a screenshot.
+                </li>
+            </ul>
+        </div>
 
-    <section class="card">
-        <h2>Bug Report Template</h2>
-        <div class="scan-details">
-            <div><strong>Steps</strong>: what you clicked</div>
-            <div><strong>Expected</strong>: what should happen</div>
-            <div><strong>Actual</strong>: what happened</div>
-            <div><strong>Browser</strong>: Chrome/Edge + version</div>
-            <div><strong>Console</strong>: any error text</div>
-            <div><strong>URL</strong>: the URL you scanned</div>
+        <div class="rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur p-6 shadow-[var(--shadow)]">
+            <h2 class="text-xl font-extrabold">Bug Report Template</h2>
+            <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3"><span class="font-extrabold">Steps</span>: what you clicked</div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3"><span class="font-extrabold">Expected</span>: what should happen</div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3"><span class="font-extrabold">Actual</span>: what happened</div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3"><span class="font-extrabold">Browser</span>: Chrome/Edge + version</div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3"><span class="font-extrabold">Console</span>: any error text</div>
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/60 p-3"><span class="font-extrabold">URL</span>: the URL you scanned</div>
+            </div>
         </div>
     </section>
 </div>

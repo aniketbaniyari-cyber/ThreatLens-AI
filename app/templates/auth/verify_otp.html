@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verify OTP - ThreatLens AI</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { theme: { extend: { fontFamily: { body: ["Space Grotesk","ui-sans-serif","system-ui"] } } } };
+    </script>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script>
+    (function () {
+        try {
+            const theme = localStorage.getItem("tl_theme");
+            if (theme) document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+    })();
+    </script>
+</head>
+<body class="auth-bg min-h-screen antialiased font-body text-[color:var(--ink)]">
+
+    <div class="w-[min(460px,92%)] mx-auto rounded-2xl border border-[color:var(--line)] bg-white/75 backdrop-blur p-7 shadow-[var(--shadow)]">
+        <div class="flex items-center justify-between gap-3">
+            <div class="text-lg font-extrabold tracking-wide">ThreatLens</div>
+            <button type="button" id="themeToggle"
+                    class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/60 hover:bg-white/85 transition">
+                Theme
+            </button>
+        </div>
+
+        <h1 class="mt-4 text-3xl font-extrabold">Verify OTP</h1>
+        <p class="mt-2 text-sm text-[color:var(--muted)]">Enter the 6-digit code sent to your email.</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="mt-4 grid gap-2">
+              {% for category, message in messages %}
+                <div class="rounded-xl border border-[color:var(--line)] bg-white/70 px-4 py-3 text-sm {{ category }}">
+                    {{ message }}
+                </div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="mt-5 grid gap-3">
+            <input name="otp" inputmode="numeric" maxlength="6" pattern="[0-9]{6}" placeholder="6-digit OTP" required
+                   class="rounded-xl border border-slate-300 bg-white/70 px-4 py-3 text-lg tracking-[0.35em] font-extrabold outline-none focus:border-emerald-500">
+            <button type="submit"
+                    class="mt-1 inline-flex items-center justify-center rounded-xl px-4 py-3 font-extrabold text-white bg-[color:var(--primary)] hover:bg-[color:var(--primary-dark)] shadow-[0_14px_28px_rgba(11,122,106,0.22)] transition">
+                Verify
+            </button>
+        </form>
+
+        <p class="mt-5 text-sm text-[color:var(--muted)]">
+            Back to <a class="font-extrabold text-[color:var(--primary-dark)] hover:underline" href="/auth/login">Login</a>
+        </p>
+    </div>
+
+    <script>
+    (function () {
+        function toggleTheme() {
+            const current = document.documentElement.getAttribute("data-theme") || "light";
+            const next = current === "dark" ? "light" : "dark";
+            document.documentElement.setAttribute("data-theme", next);
+            try { localStorage.setItem("tl_theme", next); } catch (e) {}
+        }
+        const themeBtn = document.getElementById("themeToggle");
+        if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
+    })();
+    </script>
+
+</body>
+</html>
+

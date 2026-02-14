@@ -4,6 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ThreatLens AI Dashboard</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = { theme: { extend: { fontFamily: { body: ["Space Grotesk","ui-sans-serif","system-ui"] } } } };
+    </script>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
 
     <script>
@@ -15,29 +22,39 @@
     })();
     </script>
 </head>
-<body class="app-bg">
+<body class="app-bg min-h-screen antialiased font-body text-[color:var(--ink)]">
 
-<div class="container">
-    <header class="topbar">
-        <div class="site-mark">
-            <img class="logo" src="{{ url_for('static', filename='logo.svg') }}" alt="ThreatLens AI">
-            <div>
-                <p class="subtitle">Scan suspicious URLs, understand risk, and stay safer online.</p>
-                <div class="byline">Built by <strong>Aniket Baniyari</strong>, <strong>Yuraj</strong>, <strong>Mehak Sharma</strong></div>
-                <div class="small-text">Welcome, {{ username }}</div>
+<div class="mx-auto w-[min(1180px,92%)] py-9">
+    <header class="flex flex-col gap-5 md:flex-row md:items-center md:justify-between">
+        <div class="flex items-start gap-4">
+            <img class="w-[172px] h-auto" src="{{ url_for('static', filename='logo.svg') }}" alt="ThreatLens AI">
+            <div class="pt-1">
+                <p class="text-sm md:text-base text-[color:var(--muted)] max-w-[68ch]">
+                    Scan suspicious URLs, understand risk, and stay safer online.
+                </p>
+                <div class="mt-2 text-sm font-extrabold tracking-wide text-[color:var(--ink)]/80">
+                    Built by <span class="text-[color:var(--ink)]">Aniket Baniyari</span>, <span class="text-[color:var(--ink)]">Yuraj</span>, <span class="text-[color:var(--ink)]">Mehak Sharma</span>
+                </div>
+                <div class="mt-1 text-sm text-[color:var(--muted)]">Welcome, <span class="font-extrabold text-[color:var(--ink)]">{{ username }}</span></div>
             </div>
         </div>
-        <div class="top-actions">
-            <button type="button" id="voiceLangToggle" class="btn btn-ghost">Voice: EN</button>
-            <button type="button" id="themeToggle" class="btn btn-ghost">Theme</button>
-            <a href="/about" class="btn btn-outline">About</a>
-            <a href="/contact" class="btn btn-outline">Contact</a>
-            <a href="/dashboard/export.csv" class="btn btn-outline">Export CSV</a>
-            <a href="/auth/logout" class="btn btn-outline">Logout</a>
+        <div class="flex flex-wrap items-center gap-2">
+            <button type="button" id="voiceLangToggle"
+                    class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/60 hover:bg-white/85 transition">
+                Voice: EN
+            </button>
+            <button type="button" id="themeToggle"
+                    class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/60 hover:bg-white/85 transition">
+                Theme
+            </button>
+            <a href="/about" class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/40 hover:bg-white/70 transition">About</a>
+            <a href="/contact" class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-bold border border-[color:var(--line)] bg-white/40 hover:bg-white/70 transition">Contact</a>
+            <a href="/dashboard/export.csv" class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-extrabold border border-[color:var(--primary)] text-[color:var(--primary)] hover:bg-emerald-50/60 transition">Export CSV</a>
+            <a href="/auth/logout" class="inline-flex items-center justify-center rounded-xl px-4 py-2 font-extrabold text-white bg-[color:var(--primary)] hover:bg-[color:var(--primary-dark)] transition">Logout</a>
         </div>
     </header>
 
-    <section class="card scan-panel">
+    <section class="card scan-panel rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur shadow-[var(--shadow)]">
         <h2>Scan a URL</h2>
         <form method="POST" action="/scan" class="scan-form">
             <input type="text" name="url" placeholder="Enter URL (example.com or https://example.com)" required>
@@ -70,7 +87,7 @@
         {% endif %}
     </section>
 
-    <section class="card">
+    <section class="card rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur shadow-[var(--shadow)]">
         <h2>Filters</h2>
         <form method="GET" action="/dashboard" class="filter-form">
             <input type="text" name="q" placeholder="Search URL contains..." value="{{ filters.q }}">
@@ -86,8 +103,8 @@
         </form>
     </section>
 
-    <div class="grid-2">
-        <section class="card">
+    <div class="grid-2 grid grid-cols-1 lg:grid-cols-2 gap-4">
+        <section class="card rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur shadow-[var(--shadow)]">
             <h2>Trends</h2>
             <div class="chart-grid">
                 <div class="chart-card">
@@ -101,7 +118,7 @@
             </div>
         </section>
 
-        <section class="card">
+        <section class="card rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur shadow-[var(--shadow)]">
             <div class="news-head">
                 <h2>Cyber News Live</h2>
                 <button type="button" id="refreshNews" class="btn btn-ghost">Refresh</button>
@@ -114,7 +131,7 @@
         </section>
     </div>
 
-    <section class="stats">
+    <section class="stats grid grid-cols-1 md:grid-cols-3 gap-4">
         <div class="stat-card">
             <h3>Total Scans</h3>
             <p>{{ total_scans }}</p>
@@ -129,7 +146,7 @@
         </div>
     </section>
 
-    <section class="card tips-panel">
+    <section class="card tips-panel rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur shadow-[var(--shadow)]">
         <h2>Security Tips</h2>
 
         {% if last_scan %}
@@ -176,7 +193,7 @@
         {% endif %}
     </section>
 
-    <section class="card">
+    <section class="card rounded-2xl border border-[color:var(--line)] bg-white/70 backdrop-blur shadow-[var(--shadow)]">
         <h2>Scan History</h2>
         <div class="table-wrap">
             <table>
