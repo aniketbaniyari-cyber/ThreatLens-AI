@@ -1,13 +1,13 @@
 :root {
-    --bg-1: #f6f7fb;
-    --bg-2: #e9fff6;
+    --bg-1: #f6f8ff;
+    --bg-2: #eef6ff;
     --ink: #0b1220;
     --muted: #556579;
     --surface: #ffffff;
     --surface-2: #f3f6fb;
     --line: #dbe5f1;
-    --primary: #0b7a6a;
-    --primary-dark: #075c52;
+    --primary: #1d4ed8;        /* cyber blue */
+    --primary-dark: #1e40af;   /* deeper blue */
     --danger: #c81e1e;
     --warning: #b45309;
     --safe: #0f7a36;
@@ -16,14 +16,14 @@
 
 :root[data-theme="dark"] {
     --bg-1: #070a12;
-    --bg-2: #052022;
+    --bg-2: #071a2d;
     --ink: #eaf0f7;
     --muted: #a7b4c2;
     --surface: #0e1627;
     --surface-2: #121f36;
     --line: #20314a;
-    --primary: #35d0b3;
-    --primary-dark: #1bb79b;
+    --primary: #60a5fa;        /* light cyber blue */
+    --primary-dark: #3b82f6;
     --danger: #ff6b6b;
     --warning: #ffd166;
     --safe: #3ee58a;
@@ -46,9 +46,9 @@ body {
 .auth-bg {
     min-height: 100vh;
     background:
-        radial-gradient(1100px 520px at 12% 10%, rgba(53, 208, 179, 0.20), rgba(53, 208, 179, 0.0) 60%),
-        radial-gradient(900px 480px at 88% 18%, rgba(255, 209, 102, 0.18), rgba(255, 209, 102, 0.0) 55%),
-        radial-gradient(800px 520px at 40% 92%, rgba(59, 130, 246, 0.12), rgba(59, 130, 246, 0.0) 58%),
+        radial-gradient(1100px 520px at 12% 10%, rgba(59, 130, 246, 0.18), rgba(59, 130, 246, 0.0) 60%),
+        radial-gradient(900px 480px at 88% 18%, rgba(245, 158, 11, 0.14), rgba(245, 158, 11, 0.0) 55%),
+        radial-gradient(800px 520px at 40% 92%, rgba(99, 102, 241, 0.12), rgba(99, 102, 241, 0.0) 58%),
         linear-gradient(180deg, var(--bg-2), var(--bg-1));
 }
 
@@ -80,7 +80,7 @@ body {
 .auth-bg::before {
     left: -180px;
     top: -160px;
-    background: radial-gradient(circle at 30% 30%, rgba(53, 208, 179, 0.65), rgba(53, 208, 179, 0.0) 62%);
+    background: radial-gradient(circle at 30% 30%, rgba(59, 130, 246, 0.62), rgba(59, 130, 246, 0.0) 62%);
     animation: tl-float-1 12s ease-in-out infinite;
 }
 
@@ -88,7 +88,7 @@ body {
 .auth-bg::after {
     right: -220px;
     bottom: -220px;
-    background: radial-gradient(circle at 35% 35%, rgba(59, 130, 246, 0.55), rgba(59, 130, 246, 0.0) 64%);
+    background: radial-gradient(circle at 35% 35%, rgba(245, 158, 11, 0.42), rgba(245, 158, 11, 0.0) 64%);
     animation: tl-float-2 14s ease-in-out infinite;
 }
 
@@ -248,7 +248,7 @@ input:focus {
     padding: 11px 14px;
     cursor: pointer;
     font-weight: 600;
-    box-shadow: 0 10px 20px rgba(11, 122, 106, 0.18);
+    box-shadow: 0 10px 20px rgba(29, 78, 216, 0.18);
     transform: translateY(0);
     transition: transform 0.12s ease, box-shadow 0.12s ease, background 0.12s ease;
 }
@@ -256,7 +256,7 @@ input:focus {
 .btn:hover {
     background: var(--primary-dark);
     transform: translateY(-1px);
-    box-shadow: 0 14px 26px rgba(11, 122, 106, 0.22);
+    box-shadow: 0 14px 26px rgba(29, 78, 216, 0.22);
 }
 
 .btn-ghost {
