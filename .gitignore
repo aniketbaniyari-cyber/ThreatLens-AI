@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.pyd
+*.pyo
+.pytest_cache/
+.mypy_cache/
+
+# Virtualenv
+venv/
+.venv/
+
+# Env / secrets
+.env
+.env.*
+
+# Local databases / artifacts
+*.db
+instance/
+database/
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.vscode/
+

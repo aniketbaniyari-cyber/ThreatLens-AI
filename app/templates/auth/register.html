@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register - ThreatLens AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script>
+    (function () {
+        try {
+            const theme = localStorage.getItem("tl_theme");
+            if (theme) document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+    })();
+    </script>
+</head>
+<body class="auth-bg">
+    <div class="auth-card">
+        <div class="top-actions" style="justify-content: space-between; margin-bottom: 10px;">
+            <div class="brand">ThreatLens</div>
+            <button type="button" id="themeToggle" class="btn btn-ghost">Theme</button>
+        </div>
+
+        <h1>Create Account</h1>
+        <p class="subtitle">Start scanning suspicious URLs</p>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+          {% if messages %}
+            <div class="alerts">
+              {% for category, message in messages %}
+                <div class="alert {{ category }}">{{ message }}</div>
+              {% endfor %}
+            </div>
+          {% endif %}
+        {% endwith %}
+
+        <form method="POST" class="auth-form">
+            <input name="email" type="email" placeholder="Email" required>
+            <input name="password" type="password" placeholder="Password" required>
+            <button type="submit" class="btn">Register</button>
+        </form>
+
+        <div class="auth-divider"><span>or</span></div>
+        <a href="/auth/google/login" class="btn btn-google">
+            <span class="g-icon" aria-hidden="true">
+                <svg viewBox="0 0 48 48" width="18" height="18">
+                    <path fill="#EA4335" d="M24 9.5c3.54 0 6.26 1.52 7.7 2.8l5.27-5.27C33.9 4.2 29.4 2 24 2 14.62 2 6.59 7.38 2.79 15.2l6.56 5.09C11.16 14.3 17.1 9.5 24 9.5z"/>
+                    <path fill="#4285F4" d="M46 24.5c0-1.57-.14-2.68-.45-3.84H24v7.27h12.5c-.25 1.82-1.6 4.56-4.6 6.4l6.99 5.41C43 36.9 46 31.4 46 24.5z"/>
+                    <path fill="#FBBC05" d="M9.35 28.6c-.46-1.37-.72-2.83-.72-4.35s.26-2.98.7-4.35L2.78 14.8C1.64 17.08 1 19.64 1 24.25c0 4.61.64 7.17 1.78 9.45l6.57-5.1z"/>
+                    <path fill="#34A853" d="M24 46c5.4 0 9.93-1.78 13.24-4.86l-6.99-5.41c-1.87 1.3-4.38 2.2-6.25 2.2-6.9 0-12.83-4.8-14.64-11.4l-6.56 5.1C6.6 40.62 14.62 46 24 46z"/>
+                </svg>
+            </span>
+            Continue with Google
+        </a>
+
+        <p class="auth-link">Already registered? <a href="/auth/login">Login</a></p>
+    </div>
+
+<script>
+(function () {
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute("data-theme") || "light";
+        const next = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("tl_theme", next); } catch (e) {}
+    }
+
+    const themeBtn = document.getElementById("themeToggle");
+    if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
+})();
+</script>
+
+</body>
+</html>

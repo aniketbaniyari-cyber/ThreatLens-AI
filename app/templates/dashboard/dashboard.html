@@ -1,0 +1,560 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreatLens AI Dashboard</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script>
+    (function () {
+        try {
+            const theme = localStorage.getItem("tl_theme");
+            if (theme) document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+    })();
+    </script>
+</head>
+<body class="app-bg">
+
+<div class="container">
+    <header class="topbar">
+        <div class="site-mark">
+            <img class="logo" src="{{ url_for('static', filename='logo.svg') }}" alt="ThreatLens AI">
+            <div>
+                <p class="subtitle">Scan suspicious URLs, understand risk, and stay safer online.</p>
+                <div class="byline">Built by <strong>Aniket Baniyari</strong>, <strong>Yuraj</strong>, <strong>Mehak Sharma</strong></div>
+                <div class="small-text">Welcome, {{ username }}</div>
+            </div>
+        </div>
+        <div class="top-actions">
+            <button type="button" id="voiceLangToggle" class="btn btn-ghost">Voice: EN</button>
+            <button type="button" id="themeToggle" class="btn btn-ghost">Theme</button>
+            <a href="/about" class="btn btn-outline">About</a>
+            <a href="/contact" class="btn btn-outline">Contact</a>
+            <a href="/dashboard/export.csv" class="btn btn-outline">Export CSV</a>
+            <a href="/auth/logout" class="btn btn-outline">Logout</a>
+        </div>
+    </header>
+
+    <section class="card scan-panel">
+        <h2>Scan a URL</h2>
+        <form method="POST" action="/scan" class="scan-form">
+            <input type="text" name="url" placeholder="Enter URL (example.com or https://example.com)" required>
+            <button type="submit" class="btn">Scan Now</button>
+        </form>
+
+        {% if last_scan %}
+        <div class="last-result {{ last_scan.result|lower }}">
+            <div>
+                <strong>Latest Result:</strong> {{ last_scan.result }} ({{ last_scan.risk }}%)
+                <div class="small-text">{{ last_scan.url }}</div>
+                <div class="small-text">IP: {{ last_scan.ip_address }} | Location: {{ last_scan.location }}</div>
+                {% if last_scan.details %}
+                <div class="scan-details">
+                    <div><strong>Domain</strong>: {{ last_scan.details.domain }}</div>
+                    <div><strong>TLD</strong>: {{ last_scan.details.tld }}</div>
+                    <div><strong>Scheme</strong>: {{ last_scan.details.scheme }}</div>
+                    <div><strong>Path</strong>: {{ last_scan.details.path }}</div>
+                    <div><strong>Query</strong>: {{ "Yes" if last_scan.details.has_query else "No" }} ({{ last_scan.details.query_length }})</div>
+                    <div><strong>Port</strong>: {{ last_scan.details.port }}</div>
+                    <div><strong>HTTPS</strong>: {{ "Yes" if last_scan.details.uses_https else "No" }}</div>
+                    <div><strong>Host Type</strong>: {{ "IP" if last_scan.details.is_ip_host else "Domain" }}</div>
+                    <div><strong>URL Length</strong>: {{ last_scan.details.url_length }}</div>
+                    <div><strong>Risk Reasons</strong>: {{ last_scan.details.risk_reasons|join(", ") }}</div>
+                </div>
+                {% endif %}
+            </div>
+            <button id="speakResult" type="button" class="btn btn-small">Play AI Voice</button>
+        </div>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2>Filters</h2>
+        <form method="GET" action="/dashboard" class="filter-form">
+            <input type="text" name="q" placeholder="Search URL contains..." value="{{ filters.q }}">
+            <select name="result">
+                <option value="" {% if not filters.result %}selected{% endif %}>Any Result</option>
+                <option value="Safe" {% if filters.result == "Safe" %}selected{% endif %}>Safe</option>
+                <option value="Suspicious" {% if filters.result == "Suspicious" %}selected{% endif %}>Suspicious</option>
+                <option value="Dangerous" {% if filters.result == "Dangerous" %}selected{% endif %}>Dangerous</option>
+            </select>
+            <input type="number" name="min_risk" min="0" max="100" value="{{ filters.min_risk }}" placeholder="Min risk">
+            <input type="number" name="max_risk" min="0" max="100" value="{{ filters.max_risk }}" placeholder="Max risk">
+            <button type="submit" class="btn">Apply</button>
+        </form>
+    </section>
+
+    <div class="grid-2">
+        <section class="card">
+            <h2>Trends</h2>
+            <div class="chart-grid">
+                <div class="chart-card">
+                    <h3>Scans Per Day</h3>
+                    <canvas id="scansChart" height="120"></canvas>
+                </div>
+                <div class="chart-card">
+                    <h3>Average Risk Per Day</h3>
+                    <canvas id="riskChart" height="120"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <div class="news-head">
+                <h2>Cyber News Live</h2>
+                <button type="button" id="refreshNews" class="btn btn-ghost">Refresh</button>
+            </div>
+            <p class="subtitle">Latest cyber fraud, scams, breaches, and advisories from trusted sources.</p>
+            <div id="newsMeta" class="small-text"></div>
+            <div id="newsList" class="news-list">
+                <div class="small-text">Loading news...</div>
+            </div>
+        </section>
+    </div>
+
+    <section class="stats">
+        <div class="stat-card">
+            <h3>Total Scans</h3>
+            <p>{{ total_scans }}</p>
+        </div>
+        <div class="stat-card safe-card">
+            <h3>Safe</h3>
+            <p>{{ safe_count }}</p>
+        </div>
+        <div class="stat-card warn-card">
+            <h3>Suspicious / Dangerous</h3>
+            <p>{{ suspicious_count }}</p>
+        </div>
+    </section>
+
+    <section class="card tips-panel">
+        <h2>Security Tips</h2>
+
+        {% if last_scan %}
+        <p class="subtitle">
+            Based on the latest scan: <strong>{{ last_scan.result }}</strong> ({{ last_scan.risk }}%).
+        </p>
+
+        {% if last_scan.result == "Dangerous" %}
+        <ul class="tip-list">
+            <li><strong>Do not open the link</strong> in your main browser profile. Use a safe environment if you must inspect it.</li>
+            <li><strong>Never enter passwords/OTP/card details</strong> on that site. If you already did, change passwords immediately and enable 2FA.</li>
+            <li>Check the domain carefully (spelling, extra subdomains, hyphens). Attackers often mimic real brands.</li>
+            <li>If this came via SMS/Email/WhatsApp, <strong>report and block</strong> the sender.</li>
+            <li>If you suspect malware, run a full antivirus scan and check browser extensions.</li>
+        </ul>
+        {% elif last_scan.result == "Suspicious" %}
+        <ul class="tip-list">
+            <li><strong>Be cautious</strong>. Do not log in or download anything from the page.</li>
+            <li>Verify the domain via an official source (search the company, type the known URL manually).</li>
+            <li>Look for HTTPS and a valid certificate, but remember: HTTPS alone does not guarantee safety.</li>
+            <li>If it asks to \"verify\", \"update\", or \"reset\" your account, treat it as phishing until proven otherwise.</li>
+        </ul>
+        {% else %}
+        <ul class="tip-list">
+            <li>This looks relatively safe, but still verify the domain is the one you expect.</li>
+            <li>Avoid entering sensitive data on unfamiliar websites.</li>
+            <li>Keep browser and OS updated, and use a password manager to prevent look-alike site attacks.</li>
+        </ul>
+        {% endif %}
+
+        {% if last_scan.details and last_scan.details.risk_reasons %}
+        <div class="tips-note">
+            <strong>Signals detected:</strong> {{ last_scan.details.risk_reasons|join(", ") }}
+        </div>
+        {% endif %}
+        {% else %}
+        <p class="subtitle">General tips for safer browsing:</p>
+        <ul class="tip-list">
+            <li>Type important URLs manually (banking, email, social accounts) instead of clicking random links.</li>
+            <li>Be suspicious of urgency: \"verify now\", \"account locked\", \"limited time\".</li>
+            <li>Use 2FA on critical accounts and keep unique passwords.</li>
+            <li>Do not download unknown files. If needed, scan with antivirus first.</li>
+        </ul>
+        {% endif %}
+    </section>
+
+    <section class="card">
+        <h2>Scan History</h2>
+        <div class="table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>URL</th>
+                        <th>IP</th>
+                        <th>Location</th>
+                        <th>Risk</th>
+                        <th>Result</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for row in scan_rows %}
+                    <tr>
+                        <td class="url-cell">{{ row.scan.url }}</td>
+                        <td>{{ row.ip_address }}</td>
+                        <td>{{ row.location }}</td>
+                        <td>
+                            <div class="progress">
+                                <div class="progress-bar" style="width: {{ row.scan.risk_score }}%;">
+                                    {{ row.scan.risk_score }}%
+                                </div>
+                            </div>
+                        </td>
+                        <td><span class="badge {{ row.scan.result|lower }}">{{ row.scan.result }}</span></td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                        <td colspan="5" class="empty">No scans yet. Submit a URL above.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </section>
+</div>
+
+<!-- Chatbot widget (AI Q/A + URL analysis) -->
+<button type="button" class="chat-launcher" id="chatLauncher" aria-label="Open chat">
+    Chat
+</button>
+
+<div class="chatbot" id="chatbot">
+    <div class="chatbot-header">
+        <div class="chatbot-headleft">
+            <div class="chatbot-avatar" aria-hidden="true">TL</div>
+            <div>
+                <div class="chatbot-title">ThreatLens Assistant</div>
+                <div class="chatbot-subtitle"><span class="dot"></span> Online</div>
+            </div>
+        </div>
+        <button type="button" id="chatToggle" class="btn btn-ghost btn-small" aria-label="Minimize chat">Minimize</button>
+    </div>
+    <div class="chatbot-body" id="chatBody">
+        <div class="chatbot-msg bot">Ask me anything about this app, or paste a URL to analyze.</div>
+    </div>
+    <form class="chatbot-form" id="chatForm">
+        <input id="chatInput" type="text" placeholder="Ask a question or paste a URL..." autocomplete="off">
+        <button class="btn btn-small" type="submit">Send</button>
+    </form>
+</div>
+
+<script>
+(function () {
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute("data-theme") || "light";
+        const next = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("tl_theme", next); } catch (e) {}
+    }
+
+    function getVoiceLang() {
+        try { return localStorage.getItem("tl_voice_lang") || "en"; } catch (e) { return "en"; }
+    }
+
+    function setVoiceLang(lang) {
+        try { localStorage.setItem("tl_voice_lang", lang); } catch (e) {}
+        const btn = document.getElementById("voiceLangToggle");
+        if (btn) btn.textContent = "Voice: " + lang.toUpperCase();
+    }
+
+    const themeBtn = document.getElementById("themeToggle");
+    if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
+
+    const voiceBtn = document.getElementById("voiceLangToggle");
+    setVoiceLang(getVoiceLang());
+    if (voiceBtn) {
+        voiceBtn.addEventListener("click", function () {
+            const cur = getVoiceLang();
+            setVoiceLang(cur === "en" ? "hi" : "en");
+        });
+    }
+})();
+</script>
+
+{% if last_scan %}
+<script>
+(function () {
+    const risk = {{ last_scan.risk|tojson }};
+    const result = {{ last_scan.result|tojson }};
+    const domain = {{ (last_scan.details.domain if last_scan.details and last_scan.details.domain else "")|tojson }};
+    const reasons = {{ (last_scan.details.risk_reasons if last_scan.details and last_scan.details.risk_reasons else [])|tojson }};
+
+    const voiceEn = {{ (last_scan.details.voice_text if last_scan.details and last_scan.details.voice_text else ("Scan completed. Result is " ~ last_scan.result ~ ". Risk score " ~ last_scan.risk ~ " percent."))|tojson }};
+
+    const resultHi = { Safe: "सुरक्षित", Suspicious: "संदिग्ध", Dangerous: "खतरनाक" };
+    const reasonsHi = (reasons && reasons.length) ? ("मुख्य संकेत: " + reasons.slice(0, 3).join(", ")) : "";
+    const voiceHi = "स्कैन पूरा हुआ। परिणाम " + (resultHi[result] || result) + " है। जोखिम स्कोर " + risk + " प्रतिशत। डोमेन " + (domain || "") + "। " + reasonsHi;
+
+    function getVoiceLang() {
+        try { return localStorage.getItem("tl_voice_lang") || "en"; } catch (e) { return "en"; }
+    }
+
+    function isFemaleVoice(v) {
+        const name = ((v && v.name) ? v.name : "") + " " + ((v && v.voiceURI) ? v.voiceURI : "");
+        return /female|woman|zira|samantha|victoria|hazel|susan|jenny|aria|sonia|natasha|neerja|swara/i.test(name);
+    }
+
+    function scoreVoiceQuality(v, langPrefix) {
+        const name = ((v && v.name) ? v.name : "") + " " + ((v && v.voiceURI) ? v.voiceURI : "");
+        const lang = ((v && v.lang) ? v.lang : "").toLowerCase();
+        let score = 0;
+        if (langPrefix && lang.startsWith(langPrefix)) score += 100;
+        if (/neural|natural|online/i.test(name)) score += 50;
+        if (/microsoft/i.test(name)) score += 25;
+        if (/google/i.test(name)) score += 18;
+        if (/desktop|local/i.test(name)) score += 2;
+        return score;
+    }
+
+    function pickFemaleVoice(voices, langPrefix) {
+        if (!voices || !voices.length) return null;
+        const pool = voices.filter(v => ((v.lang || "").toLowerCase().startsWith(langPrefix)) && isFemaleVoice(v));
+        if (!pool.length) return null;
+        let best = pool[0];
+        let bestScore = -1;
+        for (const v of pool) {
+            const s = scoreVoiceQuality(v, langPrefix);
+            if (s > bestScore) {
+                best = v;
+                bestScore = s;
+            }
+        }
+        return best;
+    }
+
+    function ensureVoicesLoaded() {
+        return new Promise((resolve) => {
+            if (!window.speechSynthesis) return resolve([]);
+            const v = window.speechSynthesis.getVoices();
+            if (v && v.length) return resolve(v);
+            let done = false;
+            function finish() {
+                if (done) return;
+                done = true;
+                resolve(window.speechSynthesis.getVoices() || []);
+            }
+            window.speechSynthesis.onvoiceschanged = finish;
+            setTimeout(finish, 600);
+        });
+    }
+
+    async function speakResult() {
+        if (!window.speechSynthesis) {
+            alert("AI voice is not supported in this browser.");
+            return;
+        }
+        window.speechSynthesis.cancel();
+
+        const lang = getVoiceLang();
+        const utterance = new SpeechSynthesisUtterance(lang === "hi" ? voiceHi : voiceEn);
+        utterance.rate = 0.95;
+        utterance.pitch = 1.02;
+        utterance.volume = 1.0;
+        utterance.lang = (lang === "hi") ? "hi-IN" : "en-US";
+
+        const voices = await ensureVoicesLoaded();
+        const prefix = (lang === "hi") ? "hi" : "en";
+        const selected = pickFemaleVoice(voices, prefix);
+        if (!selected) {
+            const msg = (lang === "hi")
+                ? "Hindi female voice not found. Please install a Hindi female TTS voice in Windows settings or use Microsoft Edge."
+                : "English female voice not found. Please enable/install a female TTS voice (Microsoft/Google) or use Microsoft Edge.";
+            alert(msg);
+            return;
+        }
+        utterance.voice = selected;
+
+        window.speechSynthesis.speak(utterance);
+    }
+
+    const btn = document.getElementById("speakResult");
+    if (btn) {
+        btn.addEventListener("click", speakResult);
+
+        let spoke = false;
+        function autoSpeakOnce() {
+            if (spoke) return;
+            spoke = true;
+            speakResult();
+        }
+        if (window.speechSynthesis) {
+            window.speechSynthesis.onvoiceschanged = autoSpeakOnce;
+        }
+        setTimeout(autoSpeakOnce, 800);
+    }
+})();
+</script>
+{% endif %}
+
+<script>
+(function () {
+    const bot = document.getElementById("chatbot");
+    const body = document.getElementById("chatBody");
+    const form = document.getElementById("chatForm");
+    const input = document.getElementById("chatInput");
+    const toggle = document.getElementById("chatToggle");
+    const launcher = document.getElementById("chatLauncher");
+
+    function addMsg(text, who) {
+        if (!body) return;
+        const el = document.createElement("div");
+        el.className = "chatbot-msg " + (who || "bot");
+        el.textContent = text;
+        body.appendChild(el);
+        body.scrollTop = body.scrollHeight;
+        return el;
+    }
+
+    function addTyping() {
+        const el = document.createElement("div");
+        el.className = "chatbot-msg bot typing";
+        el.innerHTML = '<span class="typing-dots"><i></i><i></i><i></i></span>';
+        body.appendChild(el);
+        body.scrollTop = body.scrollHeight;
+        return el;
+    }
+
+    function setMinimized(min) {
+        if (!bot) return;
+        bot.setAttribute("data-min", min ? "1" : "0");
+        try { localStorage.setItem("tl_chat_min", min ? "1" : "0"); } catch (e) {}
+        if (toggle) toggle.textContent = min ? "Open" : "Minimize";
+        if (launcher) launcher.style.display = min ? "block" : "none";
+    }
+
+    async function send(msg) {
+        addMsg(msg, "user");
+        const typing = addTyping();
+        try {
+            const res = await fetch("/chat", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ message: msg })
+            });
+            const data = await res.json();
+            if (typing) typing.remove();
+            if (data && data.reply) addMsg(data.reply, "bot");
+            else addMsg("No reply.", "bot");
+        } catch (e) {
+            if (typing) typing.remove();
+            addMsg("Chat failed. Please try again.", "bot");
+        }
+    }
+
+    if (form) {
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            const msg = (input && input.value) ? input.value.trim() : "";
+            if (!msg) return;
+            input.value = "";
+            send(msg);
+        });
+    }
+
+    if (toggle) {
+        toggle.addEventListener("click", function () {
+            const hidden = bot.getAttribute("data-min") === "1";
+            setMinimized(!hidden);
+            if (!hidden && input) input.focus();
+        });
+    }
+
+    if (launcher) {
+        launcher.addEventListener("click", function () {
+            setMinimized(false);
+            if (input) input.focus();
+        });
+    }
+
+    const savedMin = (function () {
+        try { return localStorage.getItem("tl_chat_min") === "1"; } catch (e) { return false; }
+    })();
+    setMinimized(savedMin);
+})();
+</script>
+
+<script>
+(function () {
+    const listEl = document.getElementById("newsList");
+    const metaEl = document.getElementById("newsMeta");
+    const btn = document.getElementById("refreshNews");
+
+    async function loadNews() {
+        if (!listEl) return;
+        listEl.innerHTML = '<div class="small-text">Loading news...</div>';
+        try {
+            const res = await fetch("/news", { cache: "no-store" });
+            const data = await res.json();
+            const items = (data && data.items) ? data.items : [];
+            if (!items.length) {
+                listEl.innerHTML = '<div class="small-text">No news available right now.</div>';
+                if (metaEl) metaEl.textContent = "";
+                return;
+            }
+
+            listEl.innerHTML = "";
+            for (const it of items.slice(0, 12)) {
+                const row = document.createElement("div");
+                row.className = "news-item";
+                const title = (it.title || "").trim();
+                const link = (it.link || "").trim();
+                const source = (it.source || "").trim();
+                const published = (it.published || "").trim();
+                row.innerHTML =
+                    '<a class="news-title" target="_blank" rel="noopener noreferrer"></a>' +
+                    '<div class="news-meta"></div>';
+                const a = row.querySelector("a");
+                const m = row.querySelector(".news-meta");
+                a.textContent = title || link;
+                a.href = link || "#";
+                m.textContent = [source, published].filter(Boolean).join(" • ");
+                listEl.appendChild(row);
+            }
+
+            const now = new Date();
+            if (metaEl) metaEl.textContent = "Last updated: " + now.toLocaleString();
+        } catch (e) {
+            listEl.innerHTML = '<div class="small-text">Failed to load news. Check your internet connection.</div>';
+            if (metaEl) metaEl.textContent = "";
+        }
+    }
+
+    if (btn) btn.addEventListener("click", loadNews);
+    loadNews();
+    setInterval(loadNews, 5 * 60 * 1000);
+})();
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+(function () {
+    if (!window.Chart) return;
+    const labels = {{ trend_labels|tojson }};
+    const counts = {{ trend_counts|tojson }};
+    const avgRisk = {{ trend_avg_risk|tojson }};
+
+    const scansEl = document.getElementById("scansChart");
+    if (scansEl) {
+        new Chart(scansEl, {
+            type: "bar",
+            data: { labels, datasets: [{ label: "Scans", data: counts, backgroundColor: "#0f766e" }] },
+            options: { responsive: true, plugins: { legend: { display: false } } }
+        });
+    }
+
+    const riskEl = document.getElementById("riskChart");
+    if (riskEl) {
+        new Chart(riskEl, {
+            type: "line",
+            data: { labels, datasets: [{ label: "Avg Risk", data: avgRisk, borderColor: "#d97706", tension: 0.25 }] },
+            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 } } }
+        });
+    }
+})();
+</script>
+
+</body>
+</html>
+

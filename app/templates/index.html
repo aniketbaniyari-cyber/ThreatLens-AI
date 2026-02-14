@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ThreatLens AI</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+    <script>
+    (function () {
+        try {
+            const theme = localStorage.getItem("tl_theme");
+            if (theme) document.documentElement.setAttribute("data-theme", theme);
+        } catch (e) {}
+    })();
+    </script>
+</head>
+<body class="app-bg">
+
+<div class="container">
+    <header class="topbar">
+        <div class="site-mark">
+            <img class="logo" src="{{ url_for('static', filename='logo.svg') }}" alt="ThreatLens AI">
+            <div>
+                <p class="subtitle">Scan URLs, understand risk, and stay safer online.</p>
+                <div class="byline">Built by <strong>Aniket Baniyari</strong>, <strong>Yuraj</strong>, <strong>Mehak Sharma</strong></div>
+            </div>
+        </div>
+        <div class="top-actions">
+            <button type="button" id="themeToggle" class="btn btn-ghost">Theme</button>
+            <a class="btn btn-outline" href="/about">About</a>
+            <a class="btn btn-outline" href="/contact">Contact</a>
+            <a class="btn" href="/auth/login">Login</a>
+            <a class="btn btn-outline" href="/auth/register">Register</a>
+        </div>
+    </header>
+
+    <section class="card">
+        <h2>What You Get</h2>
+        <div class="scan-details">
+            <div><strong>Risk Score</strong>: 0 to 100</div>
+            <div><strong>Result</strong>: Safe / Suspicious / Dangerous</div>
+            <div><strong>IP + Location</strong>: domain resolution + geo lookup</div>
+            <div><strong>AI Voice</strong>: readout of scan summary</div>
+            <div><strong>Charts</strong>: scans/day and average risk trend</div>
+            <div><strong>Export</strong>: CSV download for history</div>
+        </div>
+    </section>
+
+    <section class="card">
+        <h2>Quick Start</h2>
+        <ol class="tip-list">
+            <li>Create an account or use Google login.</li>
+            <li>Go to the dashboard and scan a URL.</li>
+            <li>Review the Security Tips panel before opening suspicious links.</li>
+        </ol>
+    </section>
+</div>
+
+<script>
+(function () {
+    function toggleTheme() {
+        const current = document.documentElement.getAttribute("data-theme") || "light";
+        const next = current === "dark" ? "light" : "dark";
+        document.documentElement.setAttribute("data-theme", next);
+        try { localStorage.setItem("tl_theme", next); } catch (e) {}
+    }
+
+    const themeBtn = document.getElementById("themeToggle");
+    if (themeBtn) themeBtn.addEventListener("click", toggleTheme);
+})();
+</script>
+
+</body>
+</html>
