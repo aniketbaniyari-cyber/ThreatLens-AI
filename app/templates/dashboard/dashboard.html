@@ -308,20 +308,41 @@
         return score;
     }
 
-    function pickFemaleVoice(voices, langPrefix) {
+    function pickBestVoice(voices, langPrefix) {
         if (!voices || !voices.length) return null;
-        const pool = voices.filter(v => ((v.lang || "").toLowerCase().startsWith(langPrefix)) && isFemaleVoice(v));
-        if (!pool.length) return null;
-        let best = pool[0];
-        let bestScore = -1;
-        for (const v of pool) {
-            const s = scoreVoiceQuality(v, langPrefix);
-            if (s > bestScore) {
-                best = v;
-                bestScore = s;
+        const prefix = (langPrefix || "").toLowerCase();
+        const inLang = voices.filter(v => ((v.lang || "").toLowerCase().startsWith(prefix)));
+        const femaleInLang = inLang.filter(isFemaleVoice);
+
+        function bestByScore(pool, prefPrefix) {
+            if (!pool.length) return null;
+            let best = pool[0];
+            let bestScore = -1;
+            for (const v of pool) {
+                const s = scoreVoiceQuality(v, prefPrefix);
+                if (s > bestScore) {
+                    best = v;
+                    bestScore = s;
+                }
             }
+            return best;
         }
-        return best;
+
+        // 1) Preferred: female voice in requested language
+        const a = bestByScore(femaleInLang, prefix);
+        if (a) return a;
+
+        // 2) Fallback: any voice in requested language (works on more laptops)
+        const b = bestByScore(inLang, prefix);
+        if (b) return b;
+
+        // 3) Fallback: any female voice (often available even when Hindi isn't installed)
+        const femaleAny = voices.filter(isFemaleVoice);
+        const c = bestByScore(femaleAny, "en");
+        if (c) return c;
+
+        // 4) Last resort: whatever exists
+        return voices[0] || null;
     }
 
     function ensureVoicesLoaded() {
@@ -356,12 +377,9 @@
 
         const voices = await ensureVoicesLoaded();
         const prefix = (lang === "hi") ? "hi" : "en";
-        const selected = pickFemaleVoice(voices, prefix);
+        const selected = pickBestVoice(voices, prefix);
         if (!selected) {
-            const msg = (lang === "hi")
-                ? "Hindi female voice not found. Please install a Hindi female TTS voice in Windows settings or use Microsoft Edge."
-                : "English female voice not found. Please enable/install a female TTS voice (Microsoft/Google) or use Microsoft Edge.";
-            alert(msg);
+            alert("No system voices found. Please use Microsoft Edge/Chrome and enable Text-to-Speech voices in OS settings.");
             return;
         }
         utterance.voice = selected;
@@ -372,17 +390,6 @@
     const btn = document.getElementById("speakResult");
     if (btn) {
         btn.addEventListener("click", speakResult);
-
-        let spoke = false;
-        function autoSpeakOnce() {
-            if (spoke) return;
-            spoke = true;
-            speakResult();
-        }
-        if (window.speechSynthesis) {
-            window.speechSynthesis.onvoiceschanged = autoSpeakOnce;
-        }
-        setTimeout(autoSpeakOnce, 800);
     }
 })();
 </script>
