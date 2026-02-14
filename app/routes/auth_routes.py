@@ -90,13 +90,16 @@ def google_login():
     google = get_google_client()
     if not google:
         # Safe diagnostics: secret ko kabhi print mat karo. Ye sirf "set hai ya nahi" batata hai.
-        has_oauth = oauth is not None
         client_id = current_app.config.get("GOOGLE_CLIENT_ID") or ""
         client_secret = current_app.config.get("GOOGLE_CLIENT_SECRET") or ""
-        return (
-            "Google login not configured. Install Authlib and set GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET.\n"
-            f"diag: has_oauth={has_oauth}, has_client_id={bool(client_id)}, has_client_secret={bool(client_secret)}"
-        )
+        return {
+            "error": "Google login not configured. Install Authlib and set GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET.",
+            "diag": {
+                "has_oauth": oauth is not None,
+                "has_client_id": bool(client_id),
+                "has_client_secret": bool(client_secret),
+            },
+        }, 500
 
     # Previous failed attempts ka stale OAuth state/nonce remove kar rahe hain
     for key in list(session.keys()):
@@ -111,13 +114,16 @@ def google_login():
 def google_callback():
     google = get_google_client()
     if not google:
-        has_oauth = oauth is not None
         client_id = current_app.config.get("GOOGLE_CLIENT_ID") or ""
         client_secret = current_app.config.get("GOOGLE_CLIENT_SECRET") or ""
-        return (
-            "Google login not configured. Install Authlib and set GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET.\n"
-            f"diag: has_oauth={has_oauth}, has_client_id={bool(client_id)}, has_client_secret={bool(client_secret)}"
-        )
+        return {
+            "error": "Google login not configured. Install Authlib and set GOOGLE_CLIENT_ID/GOOGLE_CLIENT_SECRET.",
+            "diag": {
+                "has_oauth": oauth is not None,
+                "has_client_id": bool(client_id),
+                "has_client_secret": bool(client_secret),
+            },
+        }, 500
 
     try:
         token = google.authorize_access_token()
