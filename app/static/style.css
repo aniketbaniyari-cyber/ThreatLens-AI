@@ -514,12 +514,20 @@ select {
     border: 1px solid var(--line);
     border-radius: 12px;
     padding: 14px;
+    display: flex;
+    flex-direction: column;
 }
 
 .chart-card h3 {
     margin-bottom: 10px;
     color: var(--ink);
     font-size: 15px;
+}
+
+/* Chart.js responsive + fixed height (prevents charts from collapsing/looking "down") */
+.chart-card canvas {
+    width: 100% !important;
+    height: 160px !important;
 }
 
 .tips-panel .subtitle {

@@ -109,11 +109,11 @@
             <div class="chart-grid">
                 <div class="chart-card">
                     <h3>Scans Per Day</h3>
-                    <canvas id="scansChart" height="120"></canvas>
+                    <canvas id="scansChart" height="160"></canvas>
                 </div>
                 <div class="chart-card">
                     <h3>Average Risk Per Day</h3>
-                    <canvas id="riskChart" height="120"></canvas>
+                    <canvas id="riskChart" height="160"></canvas>
                 </div>
             </div>
         </section>
@@ -561,19 +561,42 @@
 
     const scansEl = document.getElementById("scansChart");
     if (scansEl) {
+        const css = getComputedStyle(document.documentElement);
+        const primary = (css.getPropertyValue("--primary") || "#1d4ed8").trim();
         new Chart(scansEl, {
             type: "bar",
-            data: { labels, datasets: [{ label: "Scans", data: counts, backgroundColor: "#0f766e" }] },
-            options: { responsive: true, plugins: { legend: { display: false } } }
+            data: { labels, datasets: [{ label: "Scans", data: counts, backgroundColor: primary }] },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } }
+            }
         });
     }
 
     const riskEl = document.getElementById("riskChart");
     if (riskEl) {
+        const css = getComputedStyle(document.documentElement);
+        const warning = (css.getPropertyValue("--warning") || "#d97706").trim();
         new Chart(riskEl, {
             type: "line",
-            data: { labels, datasets: [{ label: "Avg Risk", data: avgRisk, borderColor: "#d97706", tension: 0.25 }] },
-            options: { responsive: true, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100 } } }
+            data: {
+                labels,
+                datasets: [{
+                    label: "Avg Risk",
+                    data: avgRisk,
+                    borderColor: warning,
+                    backgroundColor: warning,
+                    tension: 0.25,
+                    pointRadius: 2,
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: { y: { min: 0, max: 100 } }
+            }
         });
     }
 })();
